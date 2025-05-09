@@ -16,7 +16,7 @@ const GallerySection = () => {
       id: 103,
       name: "Mount Frame",
       type: "General",
-      image: "https://i.postimg.cc/HxdRbj5Q/10.png",
+      image: "https://i.postimg.cc/j5X8rb2K/2.png",
     },
     {
       id: 102,
