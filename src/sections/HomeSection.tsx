@@ -3,8 +3,7 @@
 import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
 import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react"
-import { motion } from "framer-motion"
-import { ScrollReveal } from "../components/ui/scroll-reveal"
+import { motion, AnimatePresence } from "framer-motion"
 
 const HomeSection = () => {
   // Image slider for frames section
@@ -29,25 +28,10 @@ const HomeSection = () => {
     "https://i.postimg.cc/g0dNQYq6/5.png",
   ]
 
-  // Material titles and descriptions
-  const materialInfo = [
-    {
-      title: "Premium Wood",
-      description: "Sustainably sourced hardwoods with rich grains and exceptional durability.",
-    },
-    {
-      title: "Archival Matting",
-      description: "Acid-free matting that preserves colors and prevents yellowing over time.",
-    },
-    {
-      title: "Museum Glass",
-      description: "Anti-reflective glass that provides UV protection while maintaining clarity.",
-    },
-  ]
-
   const [currentFrameIndex, setCurrentFrameIndex] = useState(0)
   const [currentCollageIndex, setCurrentCollageIndex] = useState(0)
   const [currentMaterialIndex, setCurrentMaterialIndex] = useState(0)
+  const [direction, setDirection] = useState(1) // 1 for right, -1 for left
 
   // Auto slider effect for frames
   useEffect(() => {
@@ -58,15 +42,6 @@ const HomeSection = () => {
     return () => clearInterval(interval)
   }, [frameImages.length])
 
-  // Auto slider effect for collages
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentCollageIndex((prevIndex) => (prevIndex === collageImages.length - 1 ? 0 : prevIndex + 1))
-    }, 4000)
-
-    return () => clearInterval(interval)
-  }, [collageImages.length])
-
   // Auto slider effect for materials
   useEffect(() => {
     const interval = setInterval(() => {
@@ -76,306 +51,253 @@ const HomeSection = () => {
     return () => clearInterval(interval)
   }, [materialImages.length])
 
-  const nextFrameImage = () => {
-    setCurrentFrameIndex((prevIndex) => (prevIndex === frameImages.length - 1 ? 0 : prevIndex + 1))
-  }
+  // Auto slider effect for collages - slow horizontal slide
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentCollageIndex((prevIndex) => {
+        if (prevIndex === collageImages.length - 1) {
+          return 0
+        }
+        return prevIndex + 1
+      })
+    }, 5000) // Slower transition (5 seconds per image)
 
-  const prevFrameImage = () => {
-    setCurrentFrameIndex((prevIndex) => (prevIndex === 0 ? frameImages.length - 1 : prevIndex - 1))
-  }
+    return () => clearInterval(interval)
+  }, [collageImages.length])
 
   const nextCollageImage = () => {
+    setDirection(1)
     setCurrentCollageIndex((prevIndex) => (prevIndex === collageImages.length - 1 ? 0 : prevIndex + 1))
   }
 
   const prevCollageImage = () => {
+    setDirection(-1)
     setCurrentCollageIndex((prevIndex) => (prevIndex === 0 ? collageImages.length - 1 : prevIndex - 1))
   }
 
-  const nextMaterialImage = () => {
-    setCurrentMaterialIndex((prevIndex) => (prevIndex === materialImages.length - 1 ? 0 : prevIndex + 1))
-  }
-
-  const prevMaterialImage = () => {
-    setCurrentMaterialIndex((prevIndex) => (prevIndex === 0 ? materialImages.length - 1 : prevIndex - 1))
+  // Variants for horizontal slide animation
+  const variants = {
+    enter: (direction) => ({
+      x: direction > 0 ? 1000 : -1000,
+      opacity: 0,
+    }),
+    center: {
+      x: 0,
+      opacity: 1,
+    },
+    exit: (direction) => ({
+      x: direction < 0 ? 1000 : -1000,
+      opacity: 0,
+    }),
   }
 
   return (
     <div>
-      {/* SECTION 1: Logo Cover with Enhanced Gradient */}
-      <section className="h-screen relative overflow-hidden flex items-center justify-center">
-        {/* Enhanced Gradient Background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-100 z-0" />
-
-        {/* Decorative Elements */}
-        <div className="absolute inset-0 overflow-hidden z-0">
-          <div className="absolute top-1/3 left-1/3 w-96 h-96 bg-indigo-200 rounded-full blur-3xl opacity-40 animate-pulse-slow"></div>
-          <div className="absolute top-1/4 right-1/3 w-72 h-72 bg-purple-200 rounded-full blur-3xl opacity-40 animate-pulse-slow delay-1000"></div>
-          <div className="absolute bottom-1/3 left-1/4 w-80 h-80 bg-pink-200 rounded-full blur-3xl opacity-30 animate-pulse-slow delay-2000"></div>
-          <div className="absolute bottom-1/3 right-1/3 w-64 h-64 bg-blue-200 rounded-full blur-3xl opacity-30 animate-pulse-slow delay-3000"></div>
-        </div>
-
-        {/* Logo - Mobile Optimized */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1.2, ease: "easeOut" }}
-          className="relative z-10 w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg px-4"
-        >
+      {/* SECTION 1: Logo Cover with White Background - UPDATED */}
+      <section className="min-h-[60vh] md:min-h-[70vh] relative overflow-hidden flex items-center justify-center bg-white">
+        <div className="w-full max-w-xs sm:max-w-sm md:max-w-md px-4 py-8">
           <img
             src="https://i.postimg.cc/h4bxZ9ZM/Black-White-Minimalist-Initials-Monogram-Jewelry-Logo-removebg-preview.png"
-            alt="Company Logo"
+            alt="The Artistic Unity Logo"
             className="w-full h-auto"
           />
-        </motion.div>
+        </div>
       </section>
 
-      {/* SECTION 2: About Us */}
-      <section className="py-16 bg-white">
+      {/* SECTION 2: We Are - UPDATED (No Animation) */}
+      <section className="py-8 bg-gray-900 text-white">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-            <ScrollReveal>
-              <div>
-                <h2 className="text-3xl font-serif mb-6 bg-gradient-to-r from-indigo-600 to-purple-600 text-transparent bg-clip-text">
-                  About Us
-                </h2>
-                <p className="text-gray-700 text-base mb-6 leading-relaxed">
-                  Being a group of entrepreneurs "The Artistic Unity", We wishe to touch the sky with the effort of providing a satisfactory service to our customers through hard work innovation.
-                </p>
-              </div>
-            </ScrollReveal>
-
-            <ScrollReveal delay={0.2}>
-              <div className="overflow-hidden">
-                <img src="https://i.postimg.cc/0jynQbMT/3.png" alt="About Us" className="w-full h-auto" />
-              </div>
-            </ScrollReveal>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+            <div>
+              <h2 className="text-2xl md:text-3xl font-bold mb-4">We are,</h2>
+              <p className="text-gray-300 mb-6 leading-relaxed text-sm md:text-base">
+                A group of entrepreneurs "The Artistic Unity". We wish to touch the sky with the effort of providing a
+                satisfactory service to our customers through hard work and innovation.
+              </p>
+            </div>
+            <div className="overflow-hidden rounded-lg">
+              <img src="https://i.postimg.cc/0jynQbMT/3.png" alt="About Us" className="w-full h-auto" />
+            </div>
           </div>
         </div>
       </section>
 
-      {/* SECTION 3: Frames Selection with Full-Size Images */}
-      <section className="py-16 bg-gradient-to-br from-indigo-50 to-gray-50">
+      {/* SECTION 3: Our Products - UPDATED (White Background) */}
+      <section className="py-8 bg-white">
         <div className="container mx-auto px-4">
-          <ScrollReveal>
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-serif mb-6 bg-gradient-to-r from-indigo-600 to-purple-600 text-transparent bg-clip-text">
-                Choose from number of frame categories
-              </h2>
-              <p className="text-gray-600 max-w-2xl mx-auto text-base">
-                Discover our diverse range of meticulously crafted frames, each designed to enhance your cherished
-                memories. From minimalist elegance to ornate masterpieces, find the perfect frame for your personal
-                style.
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+            <div>
+              <h2 className="text-2xl md:text-3xl font-bold mb-4 italic">Our Products</h2>
+              <p className="text-gray-700 mb-6 leading-relaxed text-sm md:text-base">
+                We at The Artistic Unity offer a wide range of framing solutions and collage designs. Our products are
+                crafted with precision and care to bring your memories to life in the most elegant way.
               </p>
             </div>
-          </ScrollReveal>
+            <div className="relative h-[300px] md:h-[400px] overflow-hidden">
+              {frameImages.map((image, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0 }}
+                  animate={{
+                    opacity: currentFrameIndex === index ? 1 : 0,
+                    scale: currentFrameIndex === index ? 1 : 1.1,
+                  }}
+                  transition={{ duration: 0.8, ease: "easeInOut" }}
+                  className="absolute inset-0"
+                >
+                  <img
+                    src={image || "/placeholder.svg"}
+                    alt={`Frame Product ${index + 1}`}
+                    className="w-full h-full object-contain"
+                  />
+                </motion.div>
+              ))}
 
-          <ScrollReveal delay={0.2}>
-            {/* Full-Size Image Slider - No Background Frame */}
-            <div className="relative overflow-hidden mx-auto">
-              <div className="relative h-[70vh] overflow-hidden">
-                {frameImages.map((image, index) => (
-                  <motion.div
+              {/* Navigation Controls */}
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2 z-10">
+                {frameImages.map((_, index) => (
+                  <button
                     key={index}
-                    initial={{ opacity: 0 }}
-                    animate={{
-                      opacity: currentFrameIndex === index ? 1 : 0,
-                      scale: currentFrameIndex === index ? 1 : 1.1,
-                    }}
-                    transition={{ duration: 0.8, ease: "easeInOut" }}
-                    className="absolute inset-0 flex items-center justify-center"
-                  >
-                    <img
-                      src={image || "/placeholder.svg"}
-                      alt={`Frame design ${index + 1}`}
-                      className="max-h-full max-w-full object-contain"
-                    />
-                  </motion.div>
+                    onClick={() => setCurrentFrameIndex(index)}
+                    className={`w-2 h-2 rounded-full transition-all ${currentFrameIndex === index ? "bg-gray-800 w-4" : "bg-gray-400"
+                      }`}
+                    aria-label={`Go to frame slide ${index + 1}`}
+                  />
                 ))}
-
-                {/* Navigation Controls - Larger for Mobile */}
-                <button
-                  onClick={prevFrameImage}
-                  className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white rounded-full p-3 z-10"
-                  aria-label="Previous image"
-                >
-                  <ChevronLeft className="h-6 w-6" />
-                </button>
-                <button
-                  onClick={nextFrameImage}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white rounded-full p-3 z-10"
-                  aria-label="Next image"
-                >
-                  <ChevronRight className="h-6 w-6" />
-                </button>
-
-                {/* Dots indicator - Larger for Touch */}
-                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-3 z-10">
-                  {frameImages.map((_, index) => (
-                    <button
-                      key={index}
-                      onClick={() => setCurrentFrameIndex(index)}
-                      className={`w-3 h-3 rounded-full transition-all ${currentFrameIndex === index ? "bg-white w-6" : "bg-white/60"
-                        }`}
-                      aria-label={`Go to slide ${index + 1}`}
-                    />
-                  ))}
-                </div>
               </div>
             </div>
-          </ScrollReveal>
+          </div>
         </div>
       </section>
 
-      {/* SECTION 4: Premium Materials - Now as a Slider */}
-      <section className="py-16 bg-white">
+      {/* SECTION 4: We Appreciate Premium Materials - UPDATED (White Background) */}
+      <section className="py-8 bg-white">
         <div className="container mx-auto px-4">
-          <ScrollReveal>
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-serif mb-6 bg-gradient-to-r from-indigo-600 to-purple-600 text-transparent bg-clip-text">
-                Made Of Premium Materials
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+            <div className="relative h-[300px] md:h-[400px] overflow-hidden order-2 md:order-1">
+              {materialImages.map((image, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0 }}
+                  animate={{
+                    opacity: currentMaterialIndex === index ? 1 : 0,
+                    scale: currentMaterialIndex === index ? 1 : 1.1,
+                  }}
+                  transition={{ duration: 0.8, ease: "easeInOut" }}
+                  className="absolute inset-0"
+                >
+                  <img
+                    src={image || "/placeholder.svg"}
+                    alt={`Premium Material ${index + 1}`}
+                    className="w-full h-full object-contain"
+                  />
+                </motion.div>
+              ))}
+
+              {/* Navigation Controls */}
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2 z-10">
+                {materialImages.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentMaterialIndex(index)}
+                    className={`w-2 h-2 rounded-full transition-all ${currentMaterialIndex === index ? "bg-gray-800 w-4" : "bg-gray-400"
+                      }`}
+                    aria-label={`Go to material slide ${index + 1}`}
+                  />
+                ))}
+              </div>
+            </div>
+            <div className="order-1 md:order-2">
+              <h2 className="text-2xl md:text-3xl font-bold mb-4 italic">
+                We Appreciate <span className="text-amber-800">premium materials.</span>
               </h2>
-              <p className="text-gray-600 max-w-2xl mx-auto text-base">
-                We use only the finest materials sourced from around the world, ensuring that each frame is not just
-                beautiful but built to last generations.
+              <p className="text-gray-700 mb-6 leading-relaxed text-sm md:text-base">
+                We have imported the finest materials from around the world to ensure that our frames not only look
+                beautiful but also stand the test of time. Our commitment to quality is evident in every piece we
+                create.
               </p>
             </div>
-          </ScrollReveal>
-
-          <ScrollReveal delay={0.2}>
-            {/* Materials Slider - Full Size Images */}
-            <div className="relative overflow-hidden mx-auto">
-              <div className="relative h-[70vh] overflow-hidden">
-                {materialImages.map((image, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0 }}
-                    animate={{
-                      opacity: currentMaterialIndex === index ? 1 : 0,
-                      scale: currentMaterialIndex === index ? 1 : 1.1,
-                    }}
-                    transition={{ duration: 0.8, ease: "easeInOut" }}
-                    className="absolute inset-0 flex items-center justify-center"
-                  >
-                    <img
-                      src={image || "/placeholder.svg"}
-                      alt={`${materialInfo[index].title}`}
-                      className="max-h-full max-w-full object-contain"
-                    />
-                  </motion.div>
-                ))}
-
-                {/* Navigation Controls - Larger for Mobile */}
-                <button
-                  onClick={prevMaterialImage}
-                  className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white rounded-full p-3 z-10"
-                  aria-label="Previous material"
-                >
-                  <ChevronLeft className="h-6 w-6" />
-                </button>
-                <button
-                  onClick={nextMaterialImage}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white rounded-full p-3 z-10"
-                  aria-label="Next material"
-                >
-                  <ChevronRight className="h-6 w-6" />
-                </button>
-
-                {/* Dots indicator - Larger for Touch */}
-                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-3 z-10">
-                  {materialImages.map((_, index) => (
-                    <button
-                      key={index}
-                      onClick={() => setCurrentMaterialIndex(index)}
-                      className={`w-3 h-3 rounded-full transition-all ${currentMaterialIndex === index ? "bg-black w-6" : "bg-black/60"
-                        }`}
-                      aria-label={`Go to material ${index + 1}`}
-                    />
-                  ))}
-                </div>
-              </div>
-
-              {/* Material Information */}
-              <div className="mt-4 text-center">
-                <h3 className="text-xl font-serif mb-2 text-gray-800">{materialInfo[currentMaterialIndex].title}</h3>
-                <p className="text-gray-600 text-base max-w-2xl mx-auto">
-                  {materialInfo[currentMaterialIndex].description}
-                </p>
-              </div>
-            </div>
-          </ScrollReveal>
+          </div>
         </div>
       </section>
 
-      {/* SECTION 5: Collages Section with Full-Size Images */}
-      <section className="py-16 bg-gradient-to-br from-gray-50 to-white">
+      {/* SECTION 5: Select from multiple collage designs - UPDATED */}
+      <section className="py-8 bg-white">
         <div className="container mx-auto px-4">
-          <ScrollReveal>
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-serif mb-6 bg-gradient-to-r from-indigo-600 to-purple-600 text-transparent bg-clip-text">
-                Wide Range of Collage Ideas
-              </h2>
-              <p className="text-gray-600 max-w-2xl mx-auto text-base">
-                Tell your story through thoughtfully arranged collections of images. Our designer collages create a
-                visual narrative that brings your memories to life.
-              </p>
-            </div>
-          </ScrollReveal>
+          <h2 className="text-2xl md:text-3xl font-bold mb-6 text-center italic">
+            Select from multiple <span className="text-indigo-600">collage designs</span>
+          </h2>
 
-          <ScrollReveal delay={0.2}>
-            {/* Full-Size Collage Image Slider - No Background Frame */}
-            <div className="relative overflow-hidden mx-auto">
-              <div className="relative h-[80vh] overflow-hidden">
-                {collageImages.map((image, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0 }}
-                    animate={{
-                      opacity: currentCollageIndex === index ? 1 : 0,
-                      scale: currentCollageIndex === index ? 1 : 1.1,
-                    }}
-                    transition={{ duration: 0.8, ease: "easeInOut" }}
-                    className="absolute inset-0 flex items-center justify-center"
-                  >
+          <div className="relative overflow-hidden">
+            {/* Horizontal Slider Container */}
+            <div className="relative w-full overflow-hidden" style={{ height: "450px" }}>
+              <AnimatePresence initial={false} custom={direction}>
+                <motion.div
+                  key={currentCollageIndex}
+                  custom={direction}
+                  variants={variants}
+                  initial="enter"
+                  animate="center"
+                  exit="exit"
+                  transition={{
+                    x: { type: "tween", duration: 1.2, ease: "easeInOut" },
+                    opacity: { duration: 0.8 },
+                  }}
+                  className="absolute w-full flex justify-center"
+                >
+                  <div className="w-[90%] max-w-md rounded-lg overflow-hidden shadow-md border border-gray-200">
                     <img
-                      src={image || "/placeholder.svg"}
-                      alt={`Collage design ${index + 1}`}
-                      className="max-h-full max-w-full object-contain"
+                      src={collageImages[currentCollageIndex] || "/placeholder.svg"}
+                      alt={`Collage design ${currentCollageIndex + 1}`}
+                      className="w-full h-full object-cover"
                     />
-                  </motion.div>
+                  </div>
+                </motion.div>
+              </AnimatePresence>
+
+              {/* Navigation Controls */}
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2 z-10">
+                {collageImages.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => {
+                      setDirection(index > currentCollageIndex ? 1 : -1)
+                      setCurrentCollageIndex(index)
+                    }}
+                    className={`w-2 h-2 rounded-full transition-all ${currentCollageIndex === index ? "bg-indigo-600 w-4" : "bg-indigo-300"
+                      }`}
+                    aria-label={`Go to collage ${index + 1}`}
+                  />
                 ))}
-
-                {/* Navigation Controls - Larger for Mobile */}
-                <button
-                  onClick={prevCollageImage}
-                  className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white rounded-full p-3 z-10"
-                  aria-label="Previous collage"
-                >
-                  <ChevronLeft className="h-6 w-6" />
-                </button>
-                <button
-                  onClick={nextCollageImage}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white rounded-full p-3 z-10"
-                  aria-label="Next collage"
-                >
-                  <ChevronRight className="h-6 w-6" />
-                </button>
-
-                {/* Dots indicator - Larger for Touch */}
-                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-3 z-10">
-                  {collageImages.map((_, index) => (
-                    <button
-                      key={index}
-                      onClick={() => setCurrentCollageIndex(index)}
-                      className={`w-3 h-3 rounded-full transition-all ${currentCollageIndex === index ? "bg-white w-6" : "bg-white/60"
-                        }`}
-                      aria-label={`Go to collage ${index + 1}`}
-                    />
-                  ))}
-                </div>
               </div>
+
+              {/* Left/Right Navigation Arrows */}
+              <button
+                onClick={prevCollageImage}
+                className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white rounded-full p-2 z-10"
+                aria-label="Previous collage"
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </button>
+              <button
+                onClick={nextCollageImage}
+                className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white rounded-full p-2 z-10"
+                aria-label="Next collage"
+              >
+                <ChevronRight className="h-5 w-5" />
+              </button>
             </div>
-          </ScrollReveal>
+
+            <div className="mt-8 text-center">
+              <Link
+                to="/collages"
+                className="inline-flex items-center px-6 py-3 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
+              >
+                View All Designs
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Link>
+            </div>
+          </div>
         </div>
       </section>
     </div>
